@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartTrip 3D — Global Flight Booking Engine</title>
+ 
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+ 
+  <!-- Three.js Engine & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+ 
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand-logo">
+        <i class="fa-solid fa-plane-departure"></i> SmartTrip <span>3D</span>
+      </a>
+      <div class="nav-links">
+        <a href="#globeSection"><i class="fa-solid fa-earth-americas"></i> Radar Globe</a>
+        <a href="javascript:void(0)" id="myBookingsBtn"><i class="fa-solid fa-ticket"></i> My Bookings</a>
+        <div id="authNav">
+          <button class="btn btn-outline" id="openAuthBtn">Sign In</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section with 3D Globe Visualizer -->
+  <section class="hero" id="globeSection">
+    <div id="globeContainer"></div>
+    <div class="globe-overlay-info">
+      <h3><i class="fa-solid fa-satellite-dish"></i> Live Flight Radar Network</h3>
+      <p id="routeStatus">Select any origin and destination to stream real-time flight arcs.</p>
+    </div>
+
+    <!-- Floating Search Panel -->
+    <div class="search-card">
+      <div class="trip-type-selector">
+        <label class="radio-label">
+          <input type="radio" name="tripType" value="oneway" checked /> One Way
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="tripType" value="roundtrip" /> Round Trip
+        </label>
+      </div>
+
+      <form id="flightSearchForm">
+        <div class="form-grid">
+          <div class="input-group">
+            <label><i class="fa-solid fa-plane-departure"></i> Origin</label>
+            <select id="fromLocation" required>
+              <option value="JFK">New York (JFK)</option>
+              <option value="LAX">Los Angeles (LAX)</option>
+              <option value="LHR">London Heathrow (LHR)</option>
+              <option value="CDG">Paris Charles de Gaulle (CDG)</option>
+              <option value="DXB">Dubai International (DXB)</option>
+              <option value="SIN">Singapore Changi (SIN)</option>
+              <option value="TYO">Tokyo Haneda (HND)</option>
+              <option value="SYD">Sydney Kingsford (SYD)</option>
+              <option value="FRA">Frankfurt (FRA)</option>
+            </select>
+          </div>
+
+          <button type="button" class="swap-btn" id="swapLocationsBtn" title="Swap Cities">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+          </button>
+
+          <div class="input-group">
+            <label><i class="fa-solid fa-plane-arrival"></i> Destination</label>
+            <select id="toLocation" required>
+              <option value="LHR" selected>London Heathrow (LHR)</option>
+              <option value="JFK">New York (JFK)</option>
+              <option value="LAX">Los Angeles (LAX)</option>
+              <option value="CDG">Paris Charles de Gaulle (CDG)</option>
+              <option value="DXB">Dubai International (DXB)</option>
+              <option value="SIN">Singapore Changi (SIN)</option>
+              <option value="TYO">Tokyo Haneda (HND)</option>
+              <option value="SYD">Sydney Kingsford (SYD)</option>
+              <option value="FRA">Frankfurt (FRA)</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label><i class="fa-regular fa-calendar"></i> Departure</label>
+            <input type="date" id="departDate" required />
+          </div>
+
+          <div class="input-group" id="returnGroup" style="display:none;">
+            <label><i class="fa-regular fa-calendar-check"></i> Return</label>
+            <input type="date" id="returnDate" />
+          </div>
+
+          <div class="input-group">
+            <label><i class="fa-solid fa-user-group"></i> Travelers</label>
+            <input type="number" id="passengerCount" min="1" max="4" value="1" required />
+          </div>
+
+          <div class="input-group">
+            <label><i class="fa-solid fa-couch"></i> Class</label>
+            <select id="cabinClass">
+              <option value="economy">Economy</option>
+              <option value="premium">Premium Economy</option>
+              <option value="business">Business Class</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary search-btn">
+          <i class="fa-solid fa-magnifying-glass"></i> Search Scheduled Flights
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Flight Results Section -->
+  <main class="container">
+    <section id="resultsSection" class="results-section hidden">
+      <div class="results-header-box">
+        <div>
+          <h2 id="searchRouteHeader">Available Flights</h2>
+          <p id="searchMetaHeader" style="color: var(--text-muted); font-size: 0.85rem;"></p>
+        </div>
+        <div class="filter-toolbar">
+          <div class="filter-group">
+            <label>Sort By:</label>
+            <select id="sortBy" class="select-sm">
+              <option value="price">Lowest Price</option>
+              <option value="duration">Fastest Duration</option>
+              <option value="departure">Earliest Departure</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label><input type="checkbox" id="directOnly" /> Non-stop Only</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="flightResultsList" class="results-list"></div>
+    </section>
+  </main>
+
+  <!-- Modal 1: Interactive Seat Picker -->
+  <div class="modal-backdrop hidden" id="seatModal">
+    <div class="modal-card modal-large">
+      <button class="modal-close" id="closeSeatBtn">&times;</button>
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-chair"></i> Select Cabin Seats</h3>
+        <p id="seatInstructions" style="color:var(--text-muted); font-size:0.85rem; margin-top: 4px;">
+          Select seats for all travelers.
+        </p>
+      </div>
+
+      <div class="cabin-legend">
+        <span><span class="legend-box standard"></span> Economy</span>
+        <span><span class="legend-box premium"></span> Business Class</span>
+        <span><span class="legend-box selected"></span> Selected</span>
+        <span><span class="legend-box occupied"></span> Reserved</span>
+      </div>
+     
+      <div class="seat-picker-body">
+        <div class="aircraft-tube">
+          <div id="seatMapContainer" class="seat-map"></div>
+        </div>
+      </div>
+
+      <div class="seat-footer">
+        <div>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Allocated Seats:</span>
+          <h4 id="selectedSeatLabel" style="color: var(--accent);">None</h4>
+        </div>
+        <button class="btn btn-primary" id="confirmSeatBtn" disabled>
+          Continue to Passenger Info <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: International APIS Passenger & Passport Verification -->
+  <div class="modal-backdrop hidden" id="passportModal">
+    <div class="modal-card modal-large">
+      <button class="modal-close" id="closePassportBtn">&times;</button>
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-id-card"></i> International Traveler & Passport Verification</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-top: 4px;">
+          Mandatory Advance Passenger Information System (APIS) as required by international border control.
+        </p>
+      </div>
+
+      <form id="passengerVerificationForm" style="margin-top: 15px;">
+        <div id="passengerFormsContainer"></div>
+        <div class="alert-box" style="margin-top: 15px; font-size: 0.8rem; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 10px; border-radius: 8px; color: var(--accent);">
+          <i class="fa-solid fa-circle-info"></i> Notice: Passport must be valid for at least 6 months beyond the intended travel departure date.
+        </div>
+        <button type="submit" class="btn btn-primary full-width" style="margin-top: 18px;">
+          Verify Documents & Proceed to Payment <i class="fa-solid fa-qrcode"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: UPI QR Payment Gateway with Gallery Select -->
+  <div class="modal-backdrop hidden" id="paymentModal">
+    <div class="modal-card" style="max-width: 500px; text-align: center;">
+      <button class="modal-close" id="closePaymentBtn">&times;</button>
+      
+      <div style="margin-bottom: 10px;">
+        <span style="background: rgba(56, 189, 248, 0.15); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">
+          <i class="fa-solid fa-shield-halved"></i> SECURE UPI CHECKOUT
+        </span>
+        <h3 style="margin-top: 8px;"><i class="fa-solid fa-qrcode"></i> Scan UPI QR to Pay</h3>
+        <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">
+          Scan with Google Pay, PhonePe, Paytm, or BHIM.
+        </p>
+      </div>
+
+      <!-- QR Frame -->
+      <div style="background: #ffffff; padding: 12px; border-radius: 16px; display: inline-block; margin: 6px 0; border: 3px solid var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        <img id="upiQrImage" src="qr.png" alt="Scan to Pay" style="width: 210px; height: 210px; object-fit: contain; display: block; border-radius: 8px;" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dsmarttrip%40upi%26pn%3DSmartTrip%26cu%3DINR';" />
+      </div>
+
+      <!-- Direct Gallery Upload for Phone -->
+      <div style="margin: 6px 0 10px;">
+        <label for="qrFileInput" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.78rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+          <i class="fa-solid fa-image"></i> फ़ोन से अपना QR चुनें (Upload QR)
+        </label>
+        <input type="file" id="qrFileInput" accept="image/*" style="display: none;" />
+      </div>
+
+      <!-- Amount Breakdown -->
+      <div style="background: #0f172a; padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; text-align: left; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.08);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+          <span style="color: var(--text-muted);">Amount Payable:</span>
+          <strong id="qrTotalAmount" style="color: var(--accent); font-size: 1.1rem;">$0 (₹0)</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted);">
+          <span>Merchant Name:</span>
+          <span style="color: white; font-weight: 600;">SmartTrip Flights</span>
+        </div>
+      </div>
+
+      <!-- Simulation Action for Instant Verification -->
+      <button class="btn btn-primary full-width" id="simulateUpiSuccessBtn">
+        <i class="fa-solid fa-circle-check"></i> Verify Payment & Issue Boarding Pass
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal 4: Authentication -->
+  <div class="modal-backdrop hidden" id="authModal">
+    <div class="modal-card">
+      <button class="modal-close" id="closeAuthBtn">&times;</button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin">Sign In</button>
+        <button class="auth-tab" id="tabRegister">Register</button>
+      </div>
+     
+      <form id="loginForm" class="auth-form">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" placeholder="passenger@smarttrip.com" required />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary full-width">Sign In</button>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" id="regName" placeholder="Alex Morgan" required />
+        </div>
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" id="regEmail" placeholder="passenger@smarttrip.com" required />
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="regPassword" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary full-width">Create Passenger Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: Boarding Passes & Tickets -->
+  <div class="modal-backdrop hidden" id="bookingsModal">
+    <div class="modal-card modal-large">
+      <button class="modal-close" id="closeBookingsBtn">&times;</button>
+      <h2><i class="fa-solid fa-passport" style="color: var(--accent);"></i> Confirmed E-Tickets & Boarding Passes</h2>
+      <div id="myBookingsList" class="bookings-list" style="margin-top:20px;"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
