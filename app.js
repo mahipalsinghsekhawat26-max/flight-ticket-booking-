@@ -1,30 +1,49 @@
-/* Airport Coordinates Database */
-const AIRPORTS = {
-  JFK: { name: 'New York (JFK)', lat: 40.6413, lng: -73.7781, city: 'New York' },
-  LAX: { name: 'Los Angeles (LAX)', lat: 33.9425, lng: -118.4081, city: 'Los Angeles' },
-  LHR: { name: 'London Heathrow (LHR)', lat: 51.4700, lng: -0.4543, city: 'London' },
-  CDG: { name: 'Paris Charles de Gaulle (CDG)', lat: 49.0097, lng: 2.5479, city: 'Paris' },
-  DXB: { name: 'Dubai Intl (DXB)', lat: 25.2532, lng: 55.3657, city: 'Dubai' },
-  SIN: { name: 'Singapore Changi (SIN)', lat: 1.3644, lng: 103.9915, city: 'Singapore' },
-  TYO: { name: 'Tokyo Haneda (HND)', lat: 35.5494, lng: 139.7798, city: 'Tokyo' },
-  SYD: { name: 'Sydney Kingsford (SYD)', lat: -33.9399, lng: 151.1753, city: 'Sydney' },
-  FRA: { name: 'Frankfurt Airport (FRA)', lat: 50.0379, lng: 8.5622, city: 'Frankfurt' }
+// 1. Live Formspree Email Endpoint
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mzezedpv";
+
+// 2. Live Google Firebase Authentication Configuration
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBpmIJ1MbUFZWQnY_EO_b0y3L-ChRoxY5I",
+  authDomain: "smarttrip-login.firebaseapp.com",
+  projectId: "smarttrip-login",
+  storageBucket: "smarttrip-login.firebasestorage.app",
+  messagingSenderId: "731775823421",
+  appId: "1:731775823421:web:6290971943cf4a50664454",
+  measurementId: "G-YD8LVK46ZQ"
 };
 
-/* Airline Catalog for Dynamic Scheduling */
+/* 14 Global Airport Hubs including New Delhi & Mumbai */
+const AIRPORTS = {
+  DEL: { name: 'New Delhi, India (DEL)', lat: 28.5562, lng: 77.1000, city: 'New Delhi' },
+  BOM: { name: 'Mumbai, India (BOM)', lat: 19.0896, lng: 72.8656, city: 'Mumbai' },
+  JFK: { name: 'New York, USA (JFK)', lat: 40.6413, lng: -73.7781, city: 'New York' },
+  LAX: { name: 'Los Angeles, USA (LAX)', lat: 33.9425, lng: -118.4081, city: 'Los Angeles' },
+  LHR: { name: 'London Heathrow, UK (LHR)', lat: 51.4700, lng: -0.4543, city: 'London' },
+  CDG: { name: 'Paris Charles de Gaulle, France (CDG)', lat: 49.0097, lng: 2.5479, city: 'Paris' },
+  DXB: { name: 'Dubai International, UAE (DXB)', lat: 25.2532, lng: 55.3657, city: 'Dubai' },
+  SIN: { name: 'Singapore Changi, Singapore (SIN)', lat: 1.3644, lng: 103.9915, city: 'Singapore' },
+  TYO: { name: 'Tokyo Haneda, Japan (HND)', lat: 35.5494, lng: 139.7798, city: 'Tokyo' },
+  BKK: { name: 'Bangkok Suvarnabhumi, Thailand (BKK)', lat: 13.6900, lng: 100.7501, city: 'Bangkok' },
+  SYD: { name: 'Sydney Kingsford, Australia (SYD)', lat: -33.9399, lng: 151.1753, city: 'Sydney' },
+  YYZ: { name: 'Toronto Pearson, Canada (YYZ)', lat: 43.6777, lng: -79.6248, city: 'Toronto' },
+  GRU: { name: 'São Paulo Guarulhos, Brazil (GRU)', lat: -23.4356, lng: -46.4731, city: 'São Paulo' },
+  JNB: { name: 'Johannesburg O.R. Tambo, South Africa (JNB)', lat: -26.1367, lng: 28.2411, city: 'Johannesburg' }
+};
+
+/* Dynamic 10-Flight Scheduling Catalog */
 const AIRLINE_CATALOG = [
-  { name: 'SkyJet Economy', prefix: 'SJ', aircraft: 'Airbus A321neo', tier: 'budget', baggage: 'Cabin bag only', direct: true },
-  { name: 'Norse Express', prefix: 'NE', aircraft: 'Boeing 737 MAX 9', tier: 'budget', baggage: 'Personal item only', direct: true },
-  { name: 'Global Connect', prefix: 'GC', aircraft: 'Airbus A320neo', tier: 'budget', baggage: '1 Check-in (15kg)', direct: false },
-  { name: 'SmartAir Shuttle', prefix: 'SA', aircraft: 'Boeing 787-9 Dreamliner', tier: 'standard', baggage: '1 Check-in (23kg)', direct: true },
-  { name: 'Atlantic Wings', prefix: 'AW', aircraft: 'Airbus A350-900', tier: 'standard', baggage: '1 Check-in + Meal', direct: true },
-  { name: 'Pacific Trans', prefix: 'PT', aircraft: 'Boeing 777-300ER', tier: 'standard', baggage: '23kg Check-in', direct: true },
-  { name: 'British Star', prefix: 'BS', aircraft: 'Boeing 787-10', tier: 'standard', baggage: '2 Bags included', direct: true },
-  { name: 'Emirates Airway', prefix: 'EA', aircraft: 'Airbus A380-800', tier: 'premium', baggage: '30kg Allowance', direct: true },
-  { name: 'Lufthansa Line', prefix: 'LH', aircraft: 'Boeing 747-8 Intercontinental', tier: 'premium', baggage: '2 Bags (32kg)', direct: true },
-  { name: 'Singa Global', prefix: 'SG', aircraft: 'Airbus A350-1000', tier: 'premium', baggage: 'Full Allowance (35kg)', direct: true },
-  { name: 'Interline Transfer', prefix: 'IT', aircraft: 'Airbus A330-300', tier: 'budget', baggage: '1 Check-in', direct: false },
-  { name: 'Royal Nightliner', prefix: 'RN', aircraft: 'Boeing 777-300ER', tier: 'premium', baggage: 'VIP 40kg Included', direct: true }
+  { name: 'Air India', prefix: 'AI', aircraft: 'Boeing 787-8 Dreamliner', tier: 'standard', baggage: '25kg Included', direct: true },
+  { name: 'IndiGo Global', prefix: '6E', aircraft: 'Airbus A321neo', tier: 'budget', baggage: 'Cabin Bag (7kg)', direct: true },
+  { name: 'Vistara Prime', prefix: 'UK', aircraft: 'Boeing 787-9 Dreamliner', tier: 'premium', baggage: '30kg + Meal', direct: true },
+  { name: 'Emirates Airway', prefix: 'EK', aircraft: 'Airbus A380-800', tier: 'premium', baggage: '35kg Included', direct: true },
+  { name: 'Qatar Airways', prefix: 'QR', aircraft: 'Airbus A350-1000', tier: 'premium', baggage: '30kg Included', direct: true },
+  { name: 'British Airways', prefix: 'BA', aircraft: 'Boeing 777-300ER', tier: 'standard', baggage: '23kg Included', direct: true },
+  { name: 'Singapore Airlines', prefix: 'SQ', aircraft: 'Airbus A350-900', tier: 'premium', baggage: '30kg Included', direct: true },
+  { name: 'SpiceJet Express', prefix: 'SG', aircraft: 'Boeing 737 MAX 8', tier: 'budget', baggage: 'Cabin Bag Only', direct: true },
+  { name: 'Gulf Airway Connect', prefix: 'GF', aircraft: 'Airbus A320neo', tier: 'budget', baggage: '15kg Check-in', direct: false },
+  { name: 'SmartTrip Royal Shuttle', prefix: 'ST', aircraft: 'Boeing 777-300ER', tier: 'premium', baggage: 'VIP 40kg Included', direct: true },
+  { name: 'Trans-Oceanic Interline', prefix: 'TO', aircraft: 'Airbus A330-900neo', tier: 'budget', baggage: '20kg Check-in', direct: false },
+  { name: 'Air Canada International', prefix: 'AC', aircraft: 'Boeing 787-9', tier: 'standard', baggage: '23kg Included', direct: true }
 ];
 
 let state = {
@@ -45,6 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const departInput = document.getElementById('departDate');
   if (departInput) departInput.valueAsDate = new Date();
 
+  // Initialize Firebase Google Authentication
+  if (window.initFirebase) {
+    window.initFirebase(FIREBASE_CONFIG);
+  }
+
   init3DGlobe();
   initAuth();
   initSearch();
@@ -53,11 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initPaymentGateway();
   initBookings();
 
-  // Initial Projection
-  projectFlightArc('JFK', 'LHR');
+  // Initial Projection: DEL to LHR
+  projectFlightArc('DEL', 'LHR');
 });
 
-/* 1. Three.js 3D Globe Visualizer with Live Animated Plane */
+/* 1. Three.js Globe Simulation */
 function init3DGlobe() {
   const container = document.getElementById('globeContainer');
   if (!container) return;
@@ -78,7 +102,6 @@ function init3DGlobe() {
   dirLight.position.set(120, 100, 100);
   globeScene.add(dirLight);
 
-  // Wireframe Globe Sphere
   const geometry = new THREE.SphereGeometry(60, 48, 48);
   const material = new THREE.MeshPhongMaterial({
     color: 0x1e1b4b,
@@ -89,7 +112,6 @@ function init3DGlobe() {
   globeObj = new THREE.Mesh(geometry, material);
   globeScene.add(globeObj);
 
-  // Airport Pin Nodes & Pulse Rings
   Object.keys(AIRPORTS).forEach(key => {
     const apt = AIRPORTS[key];
     const pos = latLngToVector3(apt.lat, apt.lng, 60);
@@ -108,7 +130,6 @@ function init3DGlobe() {
     globeObj.add(ringMesh);
   });
 
-  // 3D Airplane Object
   const planeGroup = new THREE.Group();
   const fuselageGeo = new THREE.ConeGeometry(1.4, 5, 8);
   fuselageGeo.rotateX(Math.PI / 2);
@@ -222,19 +243,19 @@ function generateDynamicFlights(originKey, destKey) {
   const distance = Math.round(calculateDistance(origin.lat, origin.lng, dest.lat, dest.lng));
   const flightHours = Math.max(1.2, distance / 850);
   const totalMinutes = Math.round(flightHours * 60);
-  const basePrice = Math.max(180, Math.round(distance * 0.075));
+  const basePrice = Math.max(160, Math.round(distance * 0.075));
 
   const departureSlots = [
-    { dep: '06:15 AM', depMin: 375 },
-    { dep: '08:30 AM', depMin: 510 },
-    { dep: '10:45 AM', depMin: 645 },
-    { dep: '01:15 PM', depMin: 795 },
-    { dep: '03:40 PM', depMin: 940 },
-    { dep: '05:50 PM', depMin: 1070 },
-    { dep: '07:20 PM', depMin: 1160 },
-    { dep: '09:00 PM', depMin: 1260 },
-    { dep: '10:30 PM', depMin: 1350 },
-    { dep: '11:45 PM', depMin: 1425 }
+    { dep: '05:45 AM', depMin: 345 },
+    { dep: '08:15 AM', depMin: 495 },
+    { dep: '10:30 AM', depMin: 630 },
+    { dep: '01:00 PM', depMin: 780 },
+    { dep: '03:45 PM', depMin: 945 },
+    { dep: '06:00 PM', depMin: 1080 },
+    { dep: '07:30 PM', depMin: 1170 },
+    { dep: '09:15 PM', depMin: 1275 },
+    { dep: '10:45 PM', depMin: 1365 },
+    { dep: '11:55 PM', depMin: 1435 }
   ];
 
   return departureSlots.map((slot, index) => {
@@ -355,7 +376,7 @@ function renderFlights() {
   resultsSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-/* 3. Search & Form Logic */
+/* 3. Search Controller */
 function initSearch() {
   const searchForm = document.getElementById('flightSearchForm');
   const swapBtn = document.getElementById('swapLocationsBtn');
@@ -420,7 +441,7 @@ function initSearch() {
   directOnly?.addEventListener('change', renderFlights);
 }
 
-/* 4. Cabin Seat Picker */
+/* 4. Seat Picker */
 function initSeatPicker() {
   const closeSeatBtn = document.getElementById('closeSeatBtn');
   const confirmSeatBtn = document.getElementById('confirmSeatBtn');
@@ -499,7 +520,9 @@ window.openSeatPicker = (flightId, currentPrice) => {
   }
 
   document.getElementById('seatModal').classList.remove('hidden');
-};/* 5. APIS Passport & Visa Verification Engine */
+};
+
+/* 5. APIS Passport Verification */
 function initPassportVerification() {
   const closePassportBtn = document.getElementById('closePassportBtn');
   const passportModal = document.getElementById('passportModal');
@@ -523,7 +546,6 @@ function initPassportVerification() {
       const visaStatus = document.getElementById(`pax_visa_${i}`).value;
       const seat = state.selectedSeats[i] || 'Auto-assigned';
 
-      // 6-Month Passport Rule Validation
       if (expiryDate < minExpiryDate) {
         alert(`Validation Error (Traveler ${i + 1}): Passport expires on ${expiryDate.toLocaleDateString()}. International aviation guidelines require at least 6 months validity from departure date.`);
         return;
@@ -564,15 +586,19 @@ function openPassportVerification() {
         <div class="input-group">
           <label>Nationality / Citizenship</label>
           <select id="pax_nation_${i}" required>
+            <option value="India" selected>India (IND)</option>
             <option value="United States">United States (USA)</option>
-            <option value="India">India (IND)</option>
             <option value="United Kingdom">United Kingdom (GBR)</option>
+            <option value="United Arab Emirates">United Arab Emirates (UAE)</option>
+            <option value="Canada">Canada (CAN)</option>
             <option value="Germany">Germany (DEU)</option>
             <option value="France">France (FRA)</option>
-            <option value="United Arab Emirates">United Arab Emirates (UAE)</option>
-            <option value="Japan">Japan (JPN)</option>
-            <option value="Australia">Australia (AUS)</option>
             <option value="Singapore">Singapore (SGP)</option>
+            <option value="Japan">Japan (JPN)</option>
+            <option value="Thailand">Thailand (THA)</option>
+            <option value="Australia">Australia (AUS)</option>
+            <option value="Brazil">Brazil (BRA)</option>
+            <option value="South Africa">South Africa (ZAF)</option>
           </select>
         </div>
         <div class="input-group">
@@ -599,7 +625,7 @@ function openPassportVerification() {
   document.getElementById('passportModal').classList.remove('hidden');
 }
 
-/* 6. UPI QR Code Gateway with Phone Gallery Upload */
+/* 6. UPI QR Payment Gateway */
 function initPaymentGateway() {
   const closePaymentBtn = document.getElementById('closePaymentBtn');
   const paymentModal = document.getElementById('paymentModal');
@@ -609,7 +635,6 @@ function initPaymentGateway() {
 
   closePaymentBtn?.addEventListener('click', () => paymentModal.classList.add('hidden'));
 
-  // Allow uploading QR directly from Phone Gallery / File System
   qrFileInput?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -653,17 +678,18 @@ function openPaymentGateway() {
   if (savedQR) {
     upiImg.src = savedQR;
   } else {
-    // Check for qr.png, fallback to live generator
     upiImg.src = 'qr.png';
   }
   
   document.getElementById('paymentModal').classList.remove('hidden');
 }
 
+/* 7. Confirm Ticket & Trigger Formspree Email */
 function issueConfirmedTickets() {
   const flight = state.selectedFlight;
   const pnr = 'ST-' + Math.floor(100000 + Math.random() * 900000);
   const total = Math.round(state.calculatedPricePerPax * state.passengerCount * 1.14);
+  const formattedDate = document.getElementById('departDate').value || new Date().toLocaleDateString();
 
   const booking = {
     pnr,
@@ -678,19 +704,41 @@ function issueConfirmedTickets() {
     price: total,
     passengers: state.verifiedPassengers,
     cabinClass: state.cabinClass.toUpperCase(),
-    date: document.getElementById('departDate').value || new Date().toLocaleDateString()
+    date: formattedDate
   };
 
   const existingBookings = JSON.parse(localStorage.getItem('smarttrip_bookings') || '[]');
   existingBookings.push(booking);
   localStorage.setItem('smarttrip_bookings', JSON.stringify(existingBookings));
 
+  // --- AUTOMATED EMAIL NOTIFICATION VIA FORMSPREE ---
+  fetch(FORMSPREE_ENDPOINT, {
+    method: "POST",
+    headers: { 
+      "Content-Type": "application/json", 
+      "Accept": "application/json" 
+    },
+    body: JSON.stringify({
+      subject: `New Flight Booking - PNR: ${booking.pnr}`,
+      pnr: booking.pnr,
+      passenger_name: state.verifiedPassengers[0]?.name || 'Traveler',
+      passport_no: state.verifiedPassengers[0]?.passportNo || 'N/A',
+      route: `${AIRPORTS[booking.origin]?.city || booking.origin} to ${AIRPORTS[booking.destination]?.city || booking.destination}`,
+      seat: state.verifiedPassengers[0]?.seat || 'Assigned',
+      flight_code: booking.flightCode,
+      amount: `$${booking.price} (₹${(booking.price * 85).toLocaleString('en-IN')})`,
+      date: booking.date
+    })
+  })
+  .then(() => console.log("Booking email successfully sent to your Gmail via Formspree!"))
+  .catch(err => console.warn("Formspree Notice:", err));
+
   alert(`Payment Confirmed via UPI! Official Boarding Pass Issued. PNR: ${pnr}`);
   renderBookingsList();
   document.getElementById('bookingsModal').classList.remove('hidden');
 }
 
-/* 7. Bookings & Official Boarding Passes */
+/* 8. Boarding Pass Modal */
 function initBookings() {
   const myBookingsBtn = document.getElementById('myBookingsBtn');
   const closeBookingsBtn = document.getElementById('closeBookingsBtn');
@@ -759,7 +807,7 @@ window.cancelBooking = (index) => {
   }
 };
 
-/* 8. Authentication */
+/* 9. Google Sign-In with Real Firebase SDK */
 function initAuth() {
   const openAuthBtn = document.getElementById('openAuthBtn');
   const closeAuthBtn = document.getElementById('closeAuthBtn');
@@ -768,9 +816,42 @@ function initAuth() {
   const tabRegister = document.getElementById('tabRegister');
   const loginForm = document.getElementById('loginForm');
   const registerForm = document.getElementById('registerForm');
+  const googleSignInBtn = document.getElementById('googleSignInBtn');
 
   openAuthBtn?.addEventListener('click', () => authModal.classList.remove('hidden'));
   closeAuthBtn?.addEventListener('click', () => authModal.classList.add('hidden'));
+
+  googleSignInBtn?.addEventListener('click', async () => {
+    if (window.firebaseAuth && window.googleProvider && window.firebaseSignInWithPopup) {
+      try {
+        googleSignInBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Connecting to Google...`;
+        const result = await window.firebaseSignInWithPopup(window.firebaseAuth, window.googleProvider);
+        const user = result.user;
+
+        localStorage.setItem('smarttrip_user', JSON.stringify({
+          name: user.displayName || user.email.split('@')[0],
+          email: user.email,
+          photo: user.photoURL
+        }));
+
+        updateNavUser();
+        authModal.classList.add('hidden');
+        alert(`Google Sign-In Successful! Welcome, ${user.displayName || user.email}`);
+      } catch (error) {
+        console.error("Google Auth Error:", error);
+        alert("Google Sign-In: " + error.message);
+      } finally {
+        googleSignInBtn.innerHTML = `<i class="fa-brands fa-google" style="color: #ea4335; font-size: 1.1rem;"></i> Continue with Google`;
+      }
+    } else {
+      const email = prompt("Enter your Gmail for simulation:");
+      if (email) {
+        localStorage.setItem('smarttrip_user', JSON.stringify({ name: email.split('@')[0], email: email }));
+        updateNavUser();
+        authModal.classList.add('hidden');
+      }
+    }
+  });
 
   tabLogin?.addEventListener('click', () => {
     tabLogin.classList.add('active'); tabRegister.classList.remove('active');
@@ -805,12 +886,16 @@ function updateNavUser() {
   const user = JSON.parse(localStorage.getItem('smarttrip_user'));
   const authNav = document.getElementById('authNav');
   if (user && authNav) {
+    const avatar = user.photo ? `<img src="${user.photo}" style="width:24px; height:24px; border-radius:50%; vertical-align:middle; margin-right:6px;" />` : `<i class="fa-regular fa-user"></i>`;
     authNav.innerHTML = `
-      <span style="color:var(--accent); font-weight:600;"><i class="fa-regular fa-user"></i> ${user.name}</span>
+      <span style="color:var(--accent); font-weight:600;">${avatar} ${user.name}</span>
       <button class="btn btn-outline" id="logoutBtn" style="padding:6px 12px; font-size:0.85rem; margin-left:10px;">Logout</button>
     `;
     document.getElementById('logoutBtn')?.addEventListener('click', () => {
       localStorage.removeItem('smarttrip_user');
+      if (window.firebaseAuth && window.firebaseSignOut) {
+        window.firebaseSignOut(window.firebaseAuth);
+      }
       location.reload();
     });
   }
