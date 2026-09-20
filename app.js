@@ -630,15 +630,9 @@ function initPaymentGateway() {
   const closePaymentBtn = document.getElementById('closePaymentBtn');
   const paymentModal = document.getElementById('paymentModal');
   const simulateBtn = document.getElementById('simulateUpiSuccessBtn');
-  const qrFileInput = document.getElementById('qrFileInput');
   const upiImg = document.getElementById('upiQrImage');
 
   closePaymentBtn?.addEventListener('click', () => paymentModal.classList.add('hidden'));
-
-
-      reader.readAsDataURL(file);
-    }
-  });
 
   simulateBtn?.addEventListener('click', () => {
     simulateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verifying UPI Transfer...`;
@@ -652,7 +646,6 @@ function initPaymentGateway() {
     }, 1200);
   });
 }
-
 function openPaymentGateway() {
   const flight = state.selectedFlight;
   const pax = state.passengerCount;
