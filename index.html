@@ -3,17 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartTrip 3D — Global Flight Booking Engine</title>
- 
+  <title>SmartTrip Planner 3D — Global Flight Booking Engine</title>
+
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
- 
+
   <!-- Three.js Engine & OrbitControls -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
- 
+
+  <!-- Firebase Modular SDK for Real Google Sign-In -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    window.initFirebase = function(config) {
+      try {
+        const app = initializeApp(config);
+        window.firebaseAuth = getAuth(app);
+        window.googleProvider = new GoogleAuthProvider();
+        window.firebaseSignInWithPopup = signInWithPopup;
+        window.firebaseSignOut = signOut;
+        console.log("Firebase Auth Connected.");
+      } catch (err) {
+        console.warn("Firebase Notice:", err.message);
+      }
+    };
+  </script>
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -22,7 +41,7 @@
   <nav class="navbar">
     <div class="nav-container">
       <a href="#" class="brand-logo">
-        <i class="fa-solid fa-plane-departure"></i> SmartTrip <span>3D</span>
+        <i class="fa-solid fa-plane-departure"></i> SmartTrip <span>Planner 3D</span>
       </a>
       <div class="nav-links">
         <a href="#globeSection"><i class="fa-solid fa-earth-americas"></i> Radar Globe</a>
@@ -58,15 +77,20 @@
           <div class="input-group">
             <label><i class="fa-solid fa-plane-departure"></i> Origin</label>
             <select id="fromLocation" required>
-              <option value="JFK">New York (JFK)</option>
-              <option value="LAX">Los Angeles (LAX)</option>
-              <option value="LHR">London Heathrow (LHR)</option>
-              <option value="CDG">Paris Charles de Gaulle (CDG)</option>
-              <option value="DXB">Dubai International (DXB)</option>
-              <option value="SIN">Singapore Changi (SIN)</option>
-              <option value="TYO">Tokyo Haneda (HND)</option>
-              <option value="SYD">Sydney Kingsford (SYD)</option>
-              <option value="FRA">Frankfurt (FRA)</option>
+              <option value="DEL" selected>New Delhi, India (DEL)</option>
+              <option value="BOM">Mumbai, India (BOM)</option>
+              <option value="JFK">New York, USA (JFK)</option>
+              <option value="LAX">Los Angeles, USA (LAX)</option>
+              <option value="LHR">London, UK (LHR)</option>
+              <option value="CDG">Paris, France (CDG)</option>
+              <option value="DXB">Dubai, UAE (DXB)</option>
+              <option value="SIN">Singapore (SIN)</option>
+              <option value="TYO">Tokyo, Japan (HND)</option>
+              <option value="BKK">Bangkok, Thailand (BKK)</option>
+              <option value="SYD">Sydney, Australia (SYD)</option>
+              <option value="YYZ">Toronto, Canada (YYZ)</option>
+              <option value="GRU">São Paulo, Brazil (GRU)</option>
+              <option value="JNB">Johannesburg, South Africa (JNB)</option>
             </select>
           </div>
 
@@ -77,15 +101,20 @@
           <div class="input-group">
             <label><i class="fa-solid fa-plane-arrival"></i> Destination</label>
             <select id="toLocation" required>
-              <option value="LHR" selected>London Heathrow (LHR)</option>
-              <option value="JFK">New York (JFK)</option>
-              <option value="LAX">Los Angeles (LAX)</option>
-              <option value="CDG">Paris Charles de Gaulle (CDG)</option>
-              <option value="DXB">Dubai International (DXB)</option>
-              <option value="SIN">Singapore Changi (SIN)</option>
-              <option value="TYO">Tokyo Haneda (HND)</option>
-              <option value="SYD">Sydney Kingsford (SYD)</option>
-              <option value="FRA">Frankfurt (FRA)</option>
+              <option value="LHR" selected>London, UK (LHR)</option>
+              <option value="DEL">New Delhi, India (DEL)</option>
+              <option value="BOM">Mumbai, India (BOM)</option>
+              <option value="JFK">New York, USA (JFK)</option>
+              <option value="LAX">Los Angeles, USA (LAX)</option>
+              <option value="CDG">Paris, France (CDG)</option>
+              <option value="DXB">Dubai, UAE (DXB)</option>
+              <option value="SIN">Singapore (SIN)</option>
+              <option value="TYO">Tokyo, Japan (HND)</option>
+              <option value="BKK">Bangkok, Thailand (BKK)</option>
+              <option value="SYD">Sydney, Australia (SYD)</option>
+              <option value="YYZ">Toronto, Canada (YYZ)</option>
+              <option value="GRU">São Paulo, Brazil (GRU)</option>
+              <option value="JNB">Johannesburg, South Africa (JNB)</option>
             </select>
           </div>
 
@@ -183,21 +212,21 @@
     </div>
   </div>
 
-  <!-- Modal 2: International APIS Passenger & Passport Verification -->
+  <!-- Modal 2: Passport Verification -->
   <div class="modal-backdrop hidden" id="passportModal">
     <div class="modal-card modal-large">
       <button class="modal-close" id="closePassportBtn">&times;</button>
       <div class="modal-header">
         <h3><i class="fa-solid fa-id-card"></i> International Traveler & Passport Verification</h3>
         <p style="color:var(--text-muted); font-size:0.85rem; margin-top: 4px;">
-          Mandatory Advance Passenger Information System (APIS) as required by international border control.
+          Mandatory Advance Passenger Information System (APIS) verification.
         </p>
       </div>
 
       <form id="passengerVerificationForm" style="margin-top: 15px;">
         <div id="passengerFormsContainer"></div>
         <div class="alert-box" style="margin-top: 15px; font-size: 0.8rem; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 10px; border-radius: 8px; color: var(--accent);">
-          <i class="fa-solid fa-circle-info"></i> Notice: Passport must be valid for at least 6 months beyond the intended travel departure date.
+          <i class="fa-solid fa-circle-info"></i> Notice: Passport must be valid for at least 6 months beyond the departure date.
         </div>
         <button type="submit" class="btn btn-primary full-width" style="margin-top: 18px;">
           Verify Documents & Proceed to Payment <i class="fa-solid fa-qrcode"></i>
@@ -206,7 +235,7 @@
     </div>
   </div>
 
-  <!-- Modal 3: UPI QR Payment Gateway with Gallery Select -->
+  <!-- Modal 3: UPI QR Payment Gateway -->
   <div class="modal-backdrop hidden" id="paymentModal">
     <div class="modal-card" style="max-width: 500px; text-align: center;">
       <button class="modal-close" id="closePaymentBtn">&times;</button>
@@ -221,12 +250,10 @@
         </p>
       </div>
 
-      <!-- QR Frame -->
       <div style="background: #ffffff; padding: 12px; border-radius: 16px; display: inline-block; margin: 6px 0; border: 3px solid var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
         <img id="upiQrImage" src="qr.png" alt="Scan to Pay" style="width: 210px; height: 210px; object-fit: contain; display: block; border-radius: 8px;" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=upi%3A%2F%2Fpay%3Fpa%3Dsmarttrip%40upi%26pn%3DSmartTrip%26cu%3DINR';" />
       </div>
 
-      <!-- Direct Gallery Upload for Phone -->
       <div style="margin: 6px 0 10px;">
         <label for="qrFileInput" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.78rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
           <i class="fa-solid fa-image"></i> फ़ोन से अपना QR चुनें (Upload QR)
@@ -234,7 +261,6 @@
         <input type="file" id="qrFileInput" accept="image/*" style="display: none;" />
       </div>
 
-      <!-- Amount Breakdown -->
       <div style="background: #0f172a; padding: 12px 16px; border-radius: 10px; margin-bottom: 12px; text-align: left; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.08);">
         <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
           <span style="color: var(--text-muted);">Amount Payable:</span>
@@ -242,21 +268,30 @@
         </div>
         <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted);">
           <span>Merchant Name:</span>
-          <span style="color: white; font-weight: 600;">SmartTrip Flights</span>
+          <span style="color: white; font-weight: 600;">SmartTrip Planner</span>
         </div>
       </div>
 
-      <!-- Simulation Action for Instant Verification -->
       <button class="btn btn-primary full-width" id="simulateUpiSuccessBtn">
         <i class="fa-solid fa-circle-check"></i> Verify Payment & Issue Boarding Pass
       </button>
     </div>
   </div>
 
-  <!-- Modal 4: Authentication -->
+  <!-- Modal 4: Authentication (Real Google Sign-In) -->
   <div class="modal-backdrop hidden" id="authModal">
     <div class="modal-card">
       <button class="modal-close" id="closeAuthBtn">&times;</button>
+      
+      <button type="button" class="btn btn-outline full-width" id="googleSignInBtn" style="margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);">
+        <i class="fa-brands fa-google" style="color: #ea4335; font-size: 1.1rem;"></i> Continue with Google
+      </button>
+
+      <div style="text-align: center; margin-bottom: 16px; position: relative;">
+        <span style="background: #1e293b; padding: 0 10px; color: var(--text-muted); font-size: 0.8rem; position: relative; z-index: 1;">OR EMAIL</span>
+        <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.1); z-index: 0;"></div>
+      </div>
+
       <div class="auth-tabs">
         <button class="auth-tab active" id="tabLogin">Sign In</button>
         <button class="auth-tab" id="tabRegister">Register</button>
