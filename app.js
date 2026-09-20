@@ -635,16 +635,7 @@ function initPaymentGateway() {
 
   closePaymentBtn?.addEventListener('click', () => paymentModal.classList.add('hidden'));
 
-  qrFileInput?.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64Image = event.target.result;
-        upiImg.src = base64Image;
-        localStorage.setItem('smarttrip_custom_qr', base64Image);
-        alert('QR code updated successfully from your device!');
-      };
+
       reader.readAsDataURL(file);
     }
   });
